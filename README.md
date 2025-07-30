@@ -30,7 +30,7 @@ kubernetes-migration-demo/
 
 ## 📸 Architecture Diagram
 
-> ![Architecture](architecture-diagram.png)
+> ![Architecture](Kubernetes-migration-demo.png)
 
 ---
 
