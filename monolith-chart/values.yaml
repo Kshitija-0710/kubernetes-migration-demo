@@ -1,0 +1,38 @@
+replicaCount: 3
+
+image:
+  repository: gcr.io/stately-rampart-463908-j7/monolith-app
+  pullPolicy: IfNotPresent
+  tag: v1  # overridden during install
+
+service:
+  type: LoadBalancer
+  port: 8080
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 200m
+    memory: 256Mi
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: 8080
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: 8080
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 50
+
+ingress:
+  enabled: false
+
