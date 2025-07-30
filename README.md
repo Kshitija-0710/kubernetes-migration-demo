@@ -74,6 +74,10 @@ Trigger on every push to `main`:
 
 ---
 
+![Architecture Diagram](Kubernetes migration demo.png)
+
+---
+
 ## 🌱 Optional Terraform (Infra-as-Code)
 
 The `terraform/` folder contains scripts to provision:
