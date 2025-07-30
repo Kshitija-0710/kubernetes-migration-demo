@@ -1,0 +1,48 @@
+name: GKE Deploy via Helm
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Build and Deploy to GKE
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          version: 'latest'
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Configure Docker for GCR
+        run: gcloud auth configure-docker --quiet
+
+      - name: Build Docker Image
+        run: |
+          docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/monolith-app:$GITHUB_SHA ./flask-app
+
+      - name: Push Docker Image to GCR
+        run: |
+          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/monolith-app:$GITHUB_SHA
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Get GKE Credentials
+        run: |
+          gcloud container clusters get-credentials your-cluster-name --zone=your-cluster-zone --project=${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Helm Upgrade Monolith
+        run: |
+          helm upgrade --install monolith-blue ./monolith-chart \
+            --set image.repository=gcr.io/${{ secrets.GCP_PROJECT_ID }}/monolith-app \
+            --set image.tag=$GITHUB_SHA
